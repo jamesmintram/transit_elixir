@@ -5,6 +5,17 @@ data format.
 
 For more information see: https://github.com/cognitect/transit-clj
 
+### TODO:
+
+Non-comprehensive list of remaining tasks
+
+[] Support for escaping "Because the ~, ^, and ` characters have special meaning, any data string that begins with one of those characters is escaped by prepending a ~."
+[] Caching
+[] URI
+[] Figure out why map_1937_nested.edn has no cached values
+[] Link
+[] Extend beyond the "built in" types
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed

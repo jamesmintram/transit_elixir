@@ -13,9 +13,20 @@ defmodule EncodeTest do
     "set_nested",
     "true",
     "false",
+    "ints",
+    "doubles_interesting",
+    "doubles_small",
+    "keywords",
 
     "one_uuid",
     "uuids",
+
+    "list_empty",
+    "list_mixed",
+    "list_nested",
+    "list_simple",
+
+    "symbols",
 
     "zero",
     "small_ints",

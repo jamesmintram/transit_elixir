@@ -1,8 +1,6 @@
 defmodule TransitElixir.Decode do
 
-  defmodule UUID do
-    defstruct [:value]
-  end
+  alias TransitElixir.Types
 
   defp decode_set(set_values) do
     set_values
@@ -16,7 +14,7 @@ defmodule TransitElixir.Decode do
     |> Map.new
   end
   defp decode_list(list) do
-    Enum.map(list, fn a -> decode(a) end)
+    %Types.List{value: Enum.map(list, fn a -> decode(a) end)}
   end
   defp decode_value(val) do
     decode(val)
@@ -25,7 +23,7 @@ defmodule TransitElixir.Decode do
   #----------------------------------------------------------------------
 
   def decode("~u" <> uuid) do
-    %UUID{value: uuid}
+    %Types.UUID{value: uuid}
   end
 
   def decode("~:" <> sym) do
@@ -49,10 +47,12 @@ defmodule TransitElixir.Decode do
 
   def decode(["~#'" , val]), do: decode_value(val)
   def decode(%{"~#'" => val}), do: decode_value(val)
+
+  def decode("~$" <> sym), do: %Types.Symbol{value: sym}
+
   # TODO: Better way to do this?
   # Disable these as we do not support symbols
   # We fallback to strings so information is not lost when re-encoding
-  #def decode("~$" <> sym), do: sym
   #def decode("~" <> str), do: str
   def decode(value) when is_number(value), do: value
   def decode(value) when is_binary(value), do: value
@@ -71,8 +71,9 @@ defmodule TransitElixir.Decode do
     |> Map.new()
   end
 
+  # vector
   def decode(value) when is_list(value) do
-    decode_list(value)
+    Enum.map(value, fn a -> decode(a) end)
   end
 
   def decode(value) do

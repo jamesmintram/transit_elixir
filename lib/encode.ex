@@ -1,5 +1,11 @@
 defmodule TransitElixir.Encode do
 
+  alias TransitElixir.Types
+
+  def encode_list(data) do
+    ["~#list", Enum.map(data, &encode_item(&1))]
+  end
+
   def encode_map(data) do
     values = data
       |> Enum.map(fn {k, v} -> [encode_item(k), encode_item(v)]  end)
@@ -23,8 +29,14 @@ defmodule TransitElixir.Encode do
     end
   end
 
-  def encode_item(%TransitElixir.Decode.UUID{} = data) do
+  def encode_item(%Types.UUID{} = data) do
     "~u" <> data.value
+  end
+  def encode_item(%Types.Symbol{value: sym}) do
+    "~$" <> sym
+  end
+  def encode_item(%Types.List{value: list}) do
+    encode_list(list)
   end
 
   def encode_item(nil), do: nil
@@ -51,7 +63,9 @@ defmodule TransitElixir.Encode do
   end
 
   def encode(nil), do: ["~#'", nil]
-  def encode(%TransitElixir.Decode.UUID{} = data), do: ["~#'", "~u" <> data.value]
+  def encode(%Types.UUID{value: uuid}), do: ["~#'", "~u" <> uuid]
+  def encode(%Types.Symbol{value: sym}), do: ["~#'", "~$" <> sym]
+  def encode(%Types.List{value: list}), do: encode_list(list)
   def encode(value) when is_boolean(value), do: ["~#'", value]
   def encode(data) when is_binary(data), do: ["~#'", data]
   def encode(data) when is_number(data), do: ["~#'", data]

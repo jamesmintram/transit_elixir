@@ -49,8 +49,11 @@ defmodule TransitElixir.Decode do
 
   def decode(["~#'" , val]), do: decode_value(val)
   def decode(%{"~#'" => val}), do: decode_value(val)
-  def decode("~$" <> sym), do: sym
-  def decode("~" <> str), do: str
+  # TODO: Better way to do this?
+  # Disable these as we do not support symbols
+  # We fallback to strings so information is not lost when re-encoding
+  #def decode("~$" <> sym), do: sym
+  #def decode("~" <> str), do: str
   def decode(value) when is_number(value), do: value
   def decode(value) when is_binary(value), do: value
   def decode(value) when is_boolean(value), do: value

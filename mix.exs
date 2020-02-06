@@ -23,6 +23,7 @@ defmodule TransitElixir.MixProject do
   defp deps do
     [
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:jason, "~> 1.1"}
     ]
   end
@@ -36,7 +37,7 @@ defmodule TransitElixir.MixProject do
   defp package do
     [
       # These are the default files included in the package
-      files: ~w(lib config .formatter.exs mix.exs README* LICENSE*),
+      files: ~w(lib config priv .formatter.exs mix.exs README* LICENSE*),
         licenses: ["Apache 2.0"],
         links: %{"GitHub" => "https://github.com/jamesmintram/transit_elixir"}
     ]

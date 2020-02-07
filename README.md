@@ -10,13 +10,12 @@ For more information see: https://github.com/cognitect/transit-clj
 Non-comprehensive list of remaining tasks
 
 - [x] Support for escaping "Because the ~, ^, and ` characters have special meaning, any data string that begins with one of those characters is escaped by prepending a ~."
-- [ ] Caching
-  - [ ] Encoding symbols?
-  - [ ] Encoding keywords?
-  - [ ] Encoding maps
+- [-] Caching
+  - [x] Encoding symbols?
+  - [x] Encoding keywords?
+  - [x] Encoding maps
   - [ ] Key rollover
 - [ ] URI
-- [ ] Figure out why map_1937_nested.edn has no cached values
 - [ ] Link
 - [ ] Extend beyond the "built in" types
 

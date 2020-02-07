@@ -2,6 +2,11 @@ defmodule TransitElixir.Encode do
 
   alias TransitElixir.Types
 
+  def encode_string("~" <> _ = str), do: "~" <> str
+  def encode_string("~" <> _ = str), do: "^" <> str
+  def encode_string("~" <> _ = str), do: "`" <> str
+  def encode_string(str), do: str
+
   def encode_list(data) do
     ["~#list", Enum.map(data, &encode_item(&1))]
   end
@@ -42,7 +47,7 @@ defmodule TransitElixir.Encode do
   def encode_item(nil), do: nil
   def encode_item(true), do: true
   def encode_item(false), do: false
-  def encode_item(data) when is_binary(data), do: data
+  def encode_item(data) when is_binary(data), do: encode_string(data)
   def encode_item(data) when is_number(data), do: data
   def encode_item(data) when is_atom(data), do: "~:" <> Atom.to_string(data)
   def encode_item(data) when is_list(data) do
@@ -67,7 +72,7 @@ defmodule TransitElixir.Encode do
   def encode(%Types.Symbol{value: sym}), do: ["~#'", "~$" <> sym]
   def encode(%Types.List{value: list}), do: encode_list(list)
   def encode(value) when is_boolean(value), do: ["~#'", value]
-  def encode(data) when is_binary(data), do: ["~#'", data]
+  def encode(data) when is_binary(data), do: ["~#'", encode_string(data)]
   def encode(data) when is_number(data), do: ["~#'", data]
   def encode(data) when is_atom(data), do: ["~#'", "~:" <> Atom.to_string(data)]
 

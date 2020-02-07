@@ -12,7 +12,7 @@ defmodule TransitElixir.Encode do
 
   def encode_list(data, ctx) do
     {tag, ctx} = Cache.cache("~#list", ctx)
-    [tag, Enum.map(data, &encode_item(&1, ctx))]
+    {[tag, Enum.map(data, &encode_item(&1, ctx))], ctx}
   end
 
   def encode_map(data, ctx) do

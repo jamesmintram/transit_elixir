@@ -5,47 +5,50 @@ defmodule EncodeTest do
   alias TransitElixir.Decode
 
   @posts_paths [
-    "nil",
-    "one_keyword",
-    "one_string",
-    "one",
-    "set_empty",
+    # "nil",
+    # "one_keyword",
+    # "one_string",
+    # "one",
+    # "set_empty",
+    # "set_nested",
+    # "true",
+    # "false",
+    # "ints",
+    #"doubles_interesting",
+    # "doubles_small",
+    # "keywords",
+
+    # "one_uuid",
+    # "uuids",
+
+    # "list_empty",
+    # "list_mixed",
+    # "list_nested",
+    # "list_simple",
+
+    # "symbols",
+
+    # "zero",
+    # "small_ints",
+
+    # "map_unrecognized_vals",
+
+    # "vector_empty",
+    # "vector_simple",
+    # "vector_nested",
+    # "vector_mixed",
+    # "vector_unrecognized_vals",
+
+    #"set_simple",
     "set_nested",
-    "true",
-    "false",
-    "ints",
-    "doubles_interesting",
-    "doubles_small",
-    "keywords",
-
-    "one_uuid",
-    "uuids",
-
-    "list_empty",
-    "list_mixed",
-    "list_nested",
-    "list_simple",
-
-    "symbols",
-
-    "zero",
-    "small_ints",
-
-    "map_unrecognized_vals",
-
-    "vector_empty",
-    "vector_simple",
-    "vector_nested",
-    "vector_mixed",
-    "vector_unrecognized_vals",
   ]
 
   @order_dependent [
-    "map_string_keys",
-    "map_vector_keys",
-    "map_simple",
-    "set_simple",
-    "set_mixed",
+    # "map_string_keys",
+    # "map_vector_keys",
+    # "map_simple",
+    # "set_simple",
+    # "set_mixed",
   ]
 
   test "recode" do
@@ -67,6 +70,7 @@ defmodule EncodeTest do
       json_data = File.read!(path) |> Jason.decode!()
 
       encoded_json_data = Encode.encode(Decode.decode(json_data))
+      IO.puts(inspect(encoded_json_data))
       assert json_data == encoded_json_data
     end
 

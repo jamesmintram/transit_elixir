@@ -3,8 +3,6 @@ defmodule TransitElixir.Encode do
   alias TransitElixir.Types
   alias TransitElixir.Cache
 
-
-
   def encode_string("~" <> _ = str), do: "~" <> str
   def encode_string("^" <> _ = str), do: "~" <> str
   def encode_string("`" <> _ = str), do: "~" <> str
@@ -24,6 +22,7 @@ defmodule TransitElixir.Encode do
   end
 
   def encode_map(data, ctx) do
+
     simple_keys = Enum.all?(data,
       fn {k, _} ->
         cond do
@@ -46,7 +45,7 @@ defmodule TransitElixir.Encode do
         end
       end)
 
-
+    #TODO: Improve this
     {values, ctx} = if cacheable_keys do
       data
       |> Enum.reduce({[], ctx},
@@ -73,7 +72,7 @@ defmodule TransitElixir.Encode do
         {["^ "] ++ values, ctx}
       simple_keys ->
         {["^ "] ++ values, ctx}
-      :else
+      :else ->
         {tag, ctx} = Cache.cache("~#cmap", ctx)
         {[tag, values], ctx}
     end

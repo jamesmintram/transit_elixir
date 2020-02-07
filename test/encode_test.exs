@@ -42,7 +42,7 @@ defmodule EncodeTest do
   @order_dependent [
     "set_nested",
     "map_string_keys",
-    # "map_vector_keys",
+    "map_vector_keys",
     "map_simple",
     "map_unrecognized_vals",
     "set_simple",

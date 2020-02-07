@@ -41,10 +41,10 @@ defmodule EncodeTest do
 
   @order_dependent [
     "set_nested",
-    # "map_string_keys",
+    "map_string_keys",
     # "map_vector_keys",
-    # "map_simple",
-    # "map_unrecognized_vals",
+    "map_simple",
+    "map_unrecognized_vals",
     "set_simple",
     "set_mixed",
   ]
@@ -55,7 +55,8 @@ defmodule EncodeTest do
       json_data = File.read!(path) |> Jason.decode!()
 
       data = Decode.decode(json_data)
-      recoded_data = Decode.decode(Encode.encode(data))
+      encoded_data = Encode.encode(data)
+      recoded_data = Decode.decode(encoded_data)
 
       assert data == recoded_data
     end
@@ -68,7 +69,7 @@ defmodule EncodeTest do
       json_data = File.read!(path) |> Jason.decode!()
 
       encoded_json_data = Encode.encode(Decode.decode(json_data))
-      IO.puts("#{path}: " <> inspect(encoded_json_data))
+      #IO.puts("#{path}: " <> inspect(encoded_json_data))
       assert json_data == encoded_json_data
     end
 

@@ -24,11 +24,6 @@ defmodule TransitElixir.Encode do
   end
 
   def encode_map(data, ctx) do
-    values = data
-    #NOTE: String keys are cached if all of them are stringable
-      |> Enum.map(fn {k, v} -> [encode_item(k, ctx), encode_item(v, ctx)]  end)
-      |> Enum.concat()
-
     simple_keys = Enum.all?(data,
       fn {k, _} ->
         cond do
@@ -36,15 +31,51 @@ defmodule TransitElixir.Encode do
           is_number(k) -> true
           is_binary(k) -> true
           is_atom(k) -> true
+          #TODO: Add support for Symbols here
           :else -> false
         end
       end)
 
-    if simple_keys do
-      {["^ "] ++ values, ctx}
+    cacheable_keys = Enum.all?(data,
+      fn {k, _} ->
+        cond do
+          is_binary(k) -> true
+          is_atom(k) -> true
+          #TODO: Add support for Symbols here
+          :else -> false
+        end
+      end)
+
+
+    {values, ctx} = if cacheable_keys do
+      data
+      |> Enum.reduce({[], ctx},
+        fn {k, v}, {lst, ctx} ->
+          {tag, ctx} = encode_item(k, ctx)
+          {value, ctx} = encode_item(v, ctx)
+
+          {lst ++ [tag, value], ctx}
+        end)
     else
-      {tag, ctx} = Cache.cache("~#cmap", ctx)
-      {[tag, values], ctx}
+      empty_cache = Cache.create()
+      data
+      |> Enum.reduce({[], ctx},
+        fn {k, v}, {lst, ctx} ->
+          {tag, _} = encode_item(k, empty_cache)
+          {value, ctx} = encode_item(v, ctx)
+
+          {lst ++ [tag, value], ctx}
+        end)
+    end
+
+    cond do
+      cacheable_keys ->
+        {["^ "] ++ values, ctx}
+      simple_keys ->
+        {["^ "] ++ values, ctx}
+      :else
+        {tag, ctx} = Cache.cache("~#cmap", ctx)
+        {[tag, values], ctx}
     end
   end
 

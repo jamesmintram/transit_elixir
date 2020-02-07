@@ -44,7 +44,7 @@ defmodule TransitElixir.Cache do
 
         {tag, cache}
       cache_key ->
-        {cache_key, cache}
+        {"^" <> cache_key, cache}
     end
   end
 

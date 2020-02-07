@@ -12,7 +12,15 @@ defmodule TransitElixir.Encode do
 
   def encode_list(data, ctx) do
     {tag, ctx} = Cache.cache("~#list", ctx)
-    {[tag, Enum.map(data, &encode_item(&1, ctx))], ctx}
+
+    {list, ctx} = data
+    |> Enum.reduce({[], ctx},
+      fn item, {lst, ctx} ->
+        {val, ctx} = encode_item(item, ctx)
+        {lst ++ [val], ctx}
+      end)
+
+    {[tag, list], ctx}
   end
 
   def encode_map(data, ctx) do
@@ -72,7 +80,6 @@ defmodule TransitElixir.Encode do
         {lst ++ [val], ctx}
       end)
 
-      IO.puts(inspect(ctx))
     {[tag, values], ctx}
   end
 

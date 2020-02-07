@@ -13,12 +13,12 @@ defmodule DecodeTest do
 
     "list_empty",
     "list_mixed",
-    # "list_nested", NEEDS CACHE SUPPORT
+    "list_nested",
     "list_simple",
 
     "map_10_items",
-    #"map_10_nested",
-    #"map_1935_nested", NEEDS CACHE, NOTE SOME CACHE KEYS DOUBLE CHAR
+    "map_10_nested",
+    "map_1935_nested",
 
     "map_simple",
     "map_string_keys",
@@ -35,7 +35,7 @@ defmodule DecodeTest do
 
     "set_empty",
     "set_mixed",
-    #"set_nested",
+    "set_nested",
     "set_simple",
 
     "small_ints",

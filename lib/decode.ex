@@ -3,22 +3,49 @@ defmodule TransitElixir.Decode do
   alias TransitElixir.Cache
   alias TransitElixir.Types
 
-  defp decode_set(set_values) do
-    set_values
-    |> Enum.map(fn b -> decode(b) end)
-    |> MapSet.new
+  defp decode_set(set_values, ctx) do
+    {_, ctx} = Cache.cache("~#set", ctx)
+
+    {set_values, ctx} =
+    Enum.reduce(set_values, {[], ctx},
+      fn item, {lst, ctx} ->
+        {val, ctx} = decode(item, ctx)
+        {lst ++ [val], ctx}
+      end)
+
+    {MapSet.new(set_values), ctx}
   end
-  defp decode_compound_map(map_values) do
-    map_values
+
+  defp decode_compound_map(map_values, ctx) do
+    {_, ctx} = Cache.cache("~#cmap", ctx)
+
+    {map_values, ctx} = map_values
     |> Enum.chunk_every(2)
-    |> Enum.map(fn [a, b] -> {decode(a), decode(b)} end)
-    |> Map.new
+    |> Enum.reduce({[], ctx},
+      fn [k, v], {lst, ctx} ->
+        {key, ctx} = decode(k, ctx)
+        {val, ctx} = decode(v, ctx)
+
+        {[{key, val} | lst], ctx}
+      end)
+
+    {Map.new(map_values), ctx}
   end
-  defp decode_list(list) do
-    %Types.List{value: Enum.map(list, fn a -> decode(a) end)}
+
+  defp decode_list(list_values, ctx) do
+    {_, ctx} = Cache.cache("~#list", ctx)
+
+    {list, ctx} = list_values
+    |> Enum.reduce({[], ctx},
+      fn item, {lst, ctx} ->
+        {val, ctx} = decode(item, ctx)
+        {lst ++ [val], ctx}
+      end)
+
+    {%Types.List{value: list}, ctx}
   end
-  defp decode_value(val) do
-    decode(val)
+  defp decode_value(val, ctx) do
+    decode(val, ctx)
   end
 
   #----------------------------------------------------------------------
@@ -46,6 +73,21 @@ defmodule TransitElixir.Decode do
   def decode(%{"~#list" => list}, ctx), do: decode_list(list, ctx)
   def decode(["~#list", list], ctx), do: decode_list(list, ctx)
 
+  def decode("^" <> cache_key, ctx) do
+    case Cache.lookup(cache_key, ctx) do
+      nil -> raise "Unknown cache key"
+      tag -> decode(tag, ctx)
+    end
+  end
+
+  def decode(["^" <> cache_key, items], ctx) do
+    case Cache.lookup(cache_key, ctx) do
+      nil -> raise "Unknown cache key"
+      tag ->
+        decode([tag, items], ctx)
+    end
+  end
+
   def decode(["~#'" , val], ctx), do: decode_value(val, ctx)
   def decode(%{"~#'" => val}, ctx), do: decode_value(val, ctx)
 
@@ -56,25 +98,41 @@ defmodule TransitElixir.Decode do
   def decode(value, ctx) when is_boolean(value), do: {value, ctx}
 
   def decode(["^ " | map_values], ctx) do
-    values = map_values
+    {map_values, ctx} = map_values
     |> Enum.chunk_every(2)
-    |> Enum.map(fn [a, b] -> {decode(a), decode(b)} end)
-    |> Map.new
-    #TODO: Reduce
-    {values, ctx}
+    |> Enum.reduce({[], ctx},
+      fn [k, v], {lst, ctx} ->
+        {k, ctx} = Cache.cache(k, ctx)
+
+        {key, ctx} = decode(k, ctx)
+        {val, ctx} = decode(v, ctx)
+
+        {[{key, val} | lst], ctx}
+      end)
+
+    {Map.new(map_values), ctx}
   end
 
   def decode(%{} = value, ctx) do
-    #TODO: Reduce
-    value
-    |> Enum.map(fn {k, v} -> {decode(k), decode(v)} end)
-    |> Map.new()
+    {map_values, ctx} = value
+    |> Enum.reduce({[], ctx},
+      fn {k, v}, {lst, ctx} ->
+        {key, ctx} = decode(k, ctx)
+        {val, ctx} = decode(v, ctx)
+
+        {[{key, val} | lst], ctx}
+      end)
+
+    {Map.new(map_values), ctx}
   end
 
   # vector
   def decode(value, ctx) when is_list(value) do
-    #TODO: Reduce
-    Enum.map(value, fn a -> decode(a) end)
+    Enum.reduce(value, {[], ctx},
+      fn item, {lst, ctx} ->
+        {val, ctx} = decode(item, ctx)
+        {lst ++ [val], ctx}
+      end)
   end
 
   def decode(value, ctx) do
@@ -83,6 +141,7 @@ defmodule TransitElixir.Decode do
   end
 
   def decode(value) do
-    decode(value, Cache.create())
+    {data, _} = decode(value, Cache.create())
+    data
   end
 end
